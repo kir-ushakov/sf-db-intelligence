@@ -1,0 +1,65 @@
+{
+  "name": "@kir-ushakov/sf-db-intelligence",
+  "version": "0.1.0",
+  "description": "NestJS module that turns a live MySQL database into LLM-friendly artifacts: an INFORMATION_SCHEMA snapshot and natural-language text-to-SQL.",
+  "license": "Apache-2.0",
+  "private": false,
+  "repository": "https://github.com/kir-ushakov/sf-db-intelligence",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "build:standalone": "tsc -p tsconfig.standalone.json",
+    "start": "node dist/standalone/main.js",
+    "start:dev": "ts-node standalone/main.ts",
+    "test": "jest"
+  },
+  "jest": {
+    "moduleFileExtensions": ["js", "json", "ts"],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": { "^.+\\.(t|j)s$": "ts-jest" },
+    "testEnvironment": "node"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "class-transformer": "^0.5.0",
+    "class-validator": "^0.15.0",
+    "mysql2": "^3.22.0",
+    "openai": "^6.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/testing": "^11.0.1",
+    "dotenv": "^17.2.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "jest": "^30.0.0",
+    "mysql2": "^3.22.3",
+    "openai": "^6.39.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3",
+    "zod": "^4.4.3"
+  }
+}

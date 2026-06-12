@@ -1,0 +1,22 @@
+---
+description: Suggest commit message after code changes
+alwaysApply: true
+---
+
+# Commit message suggestion
+
+After completing any task that modifies files in the repo:
+
+1. End the response with a **Suggested commit** section.
+2. Propose a concise commit title (1 line, conventional commits style: feat/fix/refactor/test/chore).
+3. Optionally add a 1-sentence body explaining *why*, not *what*.
+4. Match the tone and style of recent commits in the repo when possible.
+5. Do NOT run `git commit` unless the user explicitly asks.
+6. Skip this section if no files were changed (question-only or review-only replies).
+
+Example:
+
+### Suggested commit
+**feat(db-intelligence): include table comments in schema snapshot**
+
+Expose TABLE_COMMENT in the schema JSON so the LLM can use business semantics from the database.
