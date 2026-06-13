@@ -1,6 +1,6 @@
 # DB Intelligence module
 
-`DbIntelligenceModule` (`backend/src/db-intelligence`) exposes endpoints that
+`DbIntelligenceModule` exposes endpoints that
 make a live MySQL database understandable to LLMs and turn natural-language questions into
 safe, read-only SQL.
 
@@ -56,7 +56,7 @@ When adding or changing domain types, enums, or classifiers:
 2. **Add or refresh a file-level JSDoc header** on `types/*.ts` (and non-obvious `helpers/`): purpose, key constraints, then a link line, e.g. `Field-level detail: docs/services/schema-intelligence.md`.
 3. **Keep headers short** — no duplicate tables; the doc is canonical for detail.
 
-Agent rule: `.cursor/rules/db-intelligence.mdc` (section «Documentation and file headers»).
+Contributor and agent conventions: [AGENTS.md](../AGENTS.md) (section «Documentation and file headers»).
 
 ## Configuration
 
