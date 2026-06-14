@@ -22,6 +22,9 @@
     "build:standalone": "tsc -p tsconfig.standalone.json",
     "start": "node dist/standalone/main.js",
     "start:dev": "ts-node standalone/main.ts",
+    "docker:build": "docker build -t sf-db-intelligence .",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
     "test": "jest"
   },
   "jest": {

@@ -120,6 +120,26 @@ npm start              # node dist/standalone/main.js
 
 Then `POST http://localhost:3001/text-to-sql` with body `{ "question": "…" }`.
 
+## Docker
+
+The image runs the dev-only standalone server (`POST /text-to-sql`). MySQL stays
+outside the container — set `MYSQL_*` in `.env` to your existing database. From
+inside Docker, use `MYSQL_HOST=host.docker.internal` to reach MySQL on the host
+(compose adds `extra_hosts` for Linux; Docker Desktop on Windows/macOS already
+resolves it).
+
+```bash
+cp .env.example .env   # OPENAI_API_KEY + MYSQL_* pointing at your DB
+npm run docker:up
+```
+
+Or build and run manually:
+
+```bash
+npm run docker:build
+docker run --rm -p 3001:3001 --env-file .env sf-db-intelligence
+```
+
 ## Testing
 
 Unit tests live next to each file (`*.spec.ts`). Run them with `npm test`.
