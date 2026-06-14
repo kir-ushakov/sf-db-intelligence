@@ -1,7 +1,8 @@
-# DB Intelligence module
+# DB Intelligence NestJS module
 
-`DbIntelligenceModule` exposes endpoints that make a live MySQL database
-understandable to LLMs and turn natural-language questions into safe, read-only SQL.
+`DbIntelligenceModule` is a self-contained NestJS module that exposes endpoints
+for making a live MySQL database understandable to LLMs and turning
+natural-language questions into safe, read-only SQL.
 
 ## Features
 
@@ -23,7 +24,7 @@ Shared module services have no HTTP surface. They are registered in `DbIntellige
 ### llm
 
 `LlmService` is the single owner of the OpenAI client. It receives validated
-`openai` config from `ConfigModule` (`OPENAI_API_KEY`, `OPENAI_MODEL`), exposes `model`, and runs chat
+`openai` config from `DbIntelligenceModule.forRoot()` (`OPENAI_API_KEY`, `OPENAI_MODEL`), exposes `model`, and runs chat
 completions via `createChatCompletion()` / `parseChatCompletion()` with the centrally configured model and
 `DbIntelligenceModule.forRoot({ llm })` tuning. Features never call `new OpenAI(...)`
 themselves.
@@ -57,6 +58,16 @@ When adding or changing domain types, enums, or classifiers:
 
 Contributor and agent conventions: [AGENTS.md](AGENTS.md) (section «Documentation and file headers»).
 
+## Install
+
+```bash
+npm install @kir-ushakov/sf-db-intelligence
+```
+
+The package exports the Nest module plus the public HTTP contract types:
+`DbIntelligenceModule`, `DbIntelligenceConfigInput`, `TextToSqlRequestDto`, and
+`TextToSqlResult`.
+
 ## Configuration
 
 Import the module with optional overrides:
@@ -71,6 +82,8 @@ import { DbIntelligenceModule } from '@kir-ushakov/sf-db-intelligence';
         timeoutMs: 60_000,
         maxRetries: 2,
         sqlMaxTokens: 1_024,
+        sqlRowDefault: 200,
+        sqlRowMax: 2_000,
         sqlTemperature: 0,
         schemaMaxChars: 120_000,
       },
@@ -99,6 +112,11 @@ mysql: { host } })`. It does not depend on the host app validating env. A missin
 | `MYSQL_QUEUE_LIMIT` | Max queued connection requests (`0` = unlimited) | `0` |
 | `MYSQL_TIMEZONE` | Session timezone for date values | `Z` (UTC) |
 | `PORT` | HTTP listen port (host app) | `3001` |
+| `BACKEND_PORT` | Fallback HTTP listen port for standalone only | — |
+
+Runtime row limits are configured via `forRoot({ llm })`: `sqlRowDefault`
+(`200`) is injected when the generated SQL has no outer `LIMIT`, and
+`sqlRowMax` (`2_000`) clamps overly large explicit limits.
 
 ## Standalone run (local testing)
 
@@ -118,7 +136,13 @@ npm run build:standalone
 npm start              # node dist/standalone/main.js
 ```
 
-Then `POST http://localhost:3001/text-to-sql` with body `{ "question": "…" }`.
+Then call the endpoint:
+
+```bash
+curl -X POST http://localhost:3001/text-to-sql \
+  -H "Content-Type: application/json" \
+  -d '{"question":"show me paid orders"}'
+```
 
 ## Docker
 

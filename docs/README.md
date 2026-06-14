@@ -1,8 +1,8 @@
-# DB Intelligence module
+# DB Intelligence NestJS module
 
-`DbIntelligenceModule` exposes endpoints that
-make a live MySQL database understandable to LLMs and turn natural-language questions into
-safe, read-only SQL.
+`DbIntelligenceModule` is a self-contained NestJS module that exposes endpoints
+for making a live MySQL database understandable to LLMs and turning
+natural-language questions into safe, read-only SQL.
 
 ## Features
 
@@ -24,7 +24,7 @@ Shared module services have no HTTP surface. They are registered in `DbIntellige
 ### llm
 
 `LlmService` is the single owner of the OpenAI client. It receives validated
-`openai` config from `ConfigModule` (`OPENAI_API_KEY`, `OPENAI_MODEL`), exposes `model`, and runs chat
+`openai` config from `DbIntelligenceModule.forRoot()` (`OPENAI_API_KEY`, `OPENAI_MODEL`), exposes `model`, and runs chat
 completions via `createChatCompletion()` / `parseChatCompletion()` with the centrally configured model and
 `DbIntelligenceModule.forRoot({ llm })` tuning. Features never call `new OpenAI(...)`
 themselves.
@@ -58,6 +58,12 @@ When adding or changing domain types, enums, or classifiers:
 
 Contributor and agent conventions: [AGENTS.md](../AGENTS.md) (section «Documentation and file headers»).
 
+## Public package surface
+
+The npm package publishes `dist/` only. Public exports are intentionally small:
+`DbIntelligenceModule`, `DbIntelligenceConfigInput`, `TextToSqlRequestDto`, and
+`TextToSqlResult`.
+
 ## Configuration
 
 Import the module with optional overrides:
@@ -68,6 +74,8 @@ DbIntelligenceModule.forRoot({
     timeoutMs: 60_000,
     maxRetries: 2,
     sqlMaxTokens: 1_024,
+    sqlRowDefault: 200,
+    sqlRowMax: 2_000,
     sqlTemperature: 0,
     schemaMaxChars: 120_000,
   },
@@ -93,10 +101,42 @@ mysql: { host } })`. It does not depend on the host app validating env. A missin
 | `MYSQL_QUEUE_LIMIT` | Max queued connection requests (`0` = unlimited) | `0` |
 | `MYSQL_TIMEZONE` | Session timezone for date values | `Z` (UTC) |
 | `PORT` | HTTP listen port | `3001` |
+| `BACKEND_PORT` | Fallback HTTP listen port for standalone only | — |
+
+Runtime row limits are configured via `forRoot({ llm })`: `sqlRowDefault`
+(`200`) is injected when the generated SQL has no outer `LIMIT`, and
+`sqlRowMax` (`2_000`) clamps overly large explicit limits.
+
+## Standalone and Docker
+
+The package is a library, but `standalone/` provides a dev-only Nest host for
+manual testing:
+
+```bash
+cp .env.example .env
+npm install
+npm run start:dev
+```
+
+Docker runs the same standalone server. MySQL stays outside the container; with
+compose, `MYSQL_HOST` is set to `host.docker.internal` so the app can reach a
+database running on the host:
+
+```bash
+npm run docker:up
+```
+
+Test the endpoint with:
+
+```bash
+curl -X POST http://localhost:3001/text-to-sql \
+  -H "Content-Type: application/json" \
+  -d '{"question":"show me paid orders"}'
+```
 
 ## Testing
 
-Unit tests live next to each file (`*.spec.ts`). Run them with `npx jest src/db-intelligence`.
+Unit tests live next to each file (`*.spec.ts`). Run them with `npm test`.
 `LlmService` and `SchemaIntelligenceService` are mocked in feature specs (only
 `llm.service.spec.ts` mocks the `openai` SDK directly); tests never touch a real
 database or the OpenAI API.
